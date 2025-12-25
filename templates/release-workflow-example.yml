@@ -1,0 +1,33 @@
+# Example Release Workflow for Individual Repositories
+# Copy this file to your repository's .github/workflows/release.yml
+# Customize the inputs as needed for your project
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  release:
+    name: Create Release
+    # Use the reusable workflow from the .github repository
+    uses: YOUR_ORG/.github/.github/workflows/release-go.yml@main
+    with:
+      go_version: '1.23'          # Customize: Your Go version
+      binary_name: 'myapp'         # Customize: Your binary name
+      main_path: './cmd/myapp'     # Customize: Path to your main package
+      bump_type: ${{ github.event.inputs.bump_type }}
+      enable_docker: true          # Customize: Enable/disable Docker builds
+      docker_platforms: 'linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6'  # Customize: Target platforms
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

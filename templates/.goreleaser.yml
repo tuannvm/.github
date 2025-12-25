@@ -1,0 +1,181 @@
+# Enhanced GoReleaser Configuration
+# This is a template - copy to your repository root and customize as needed
+
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod verify
+
+builds:
+  - binary: '{{ .ProjectName }}'  # Override with your binary name
+    main: .  # Override with your main package path (e.g., ./cmd/myapp)
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - "6"
+      - "7"
+    ignore:
+      - goos: windows
+        goarch: arm64
+      - goos: windows
+        goarch: arm
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.Commit={{.Commit}}
+      - -X main.Date={{.Date}}
+      - -X main.BuiltBy=goreleaser
+    flags:
+      - -trimpath
+
+archives:
+  - name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE*
+      - CHANGELOG.md
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+# Enhanced changelog with conventional commits support
+changelog:
+  use: github
+  sort: asc
+  abbrev: 7
+
+  # Group commits by type (conventional commits)
+  groups:
+    - title: 🚀 Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: 🐛 Bug Fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: 📚 Documentation
+      regexp: '^.*?docs(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: 🎨 Styling
+      regexp: '^.*?style(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: ♻️ Refactoring
+      regexp: '^.*?refactor(\([[:word:]]+\))??!?:.+$'
+      order: 4
+    - title: ⚡ Performance Improvements
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 5
+    - title: ✅ Tests
+      regexp: '^.*?test(\([[:word:]]+\))??!?:.+$'
+      order: 6
+    - title: 🔧 Build System
+      regexp: '^.*?build(\([[:word:]]+\))??!?:.+$'
+      order: 7
+    - title: 👷 CI/CD
+      regexp: '^.*?ci(\([[:word:]]+\))??!?:.+$'
+      order: 8
+    - title: 🔨 Other Changes
+      order: 999
+
+  filters:
+    # Exclude certain commit types from changelog
+    exclude:
+      - '^chore:'
+      - '^chore\('
+      - 'merge conflict'
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+      - go mod tidy
+
+# Release configuration
+release:
+  github:
+    owner: '{{ .Env.GITHUB_REPOSITORY_OWNER }}'
+    name: '{{ .ProjectName }}'
+
+  # Create a draft release (set to false for auto-publish)
+  draft: false
+
+  # Mark as prerelease for versions with -rc, -beta, -alpha
+  prerelease: auto
+
+  # Release name template
+  name_template: "{{.ProjectName}} v{{.Version}}"
+
+  # Custom release header (optional)
+  header: |
+    ## Release Notes
+
+    **Full Changelog**: https://github.com/{{ .Env.GITHUB_REPOSITORY }}/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+  # Custom release footer (optional)
+  footer: |
+    ---
+
+    ### Installation
+
+    #### Homebrew (macOS/Linux)
+    ```bash
+    brew install {{ .Env.GITHUB_REPOSITORY_OWNER }}/tap/{{ .ProjectName }}
+    ```
+
+    #### Go Install
+    ```bash
+    go install github.com/{{ .Env.GITHUB_REPOSITORY }}/{{ .ProjectName }}@{{ .Tag }}
+    ```
+
+    #### Download Binary
+    Download the appropriate binary for your platform from the assets below.
+
+    ### Docker
+    ```bash
+    docker pull ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:{{ .Tag }}
+    ```
+
+    ---
+
+    **Checksums**
+    - See `checksums.txt` in the assets below to verify download integrity
+
+# Announcement (optional - requires configuration)
+# announce:
+#   slack:
+#     enabled: true
+#     message_template: 'New release: {{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}'
+
+# Homebrew tap (optional)
+# brews:
+#   - repository:
+#       owner: YOUR_ORG
+#       name: homebrew-tap
+#     folder: Formula
+#     homepage: https://github.com/{{ .Env.GITHUB_REPOSITORY }}
+#     description: YOUR_PROJECT_DESCRIPTION
+#     license: MIT
+#     dependencies:
+#       - name: go
+#         type: optional
