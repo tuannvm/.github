@@ -1,5 +1,5 @@
-# Standalone Release Workflow Template
-# Copy this to your repository's .github/workflows/release.yml and customize
+# GitHub Actions Release Workflow
+# Copy to .github/workflows/release.yml
 
 name: Create Release
 
@@ -21,7 +21,7 @@ permissions:
   packages: write
 
 env:
-  GO_VERSION: "1.25"  # Customize: your Go version
+  GO_VERSION: "1.25"
   REGISTRY: ghcr.io
 
 jobs:

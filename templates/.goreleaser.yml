@@ -1,6 +1,5 @@
-# Enhanced GoReleaser Configuration Template
-# Based on actual convention from pm-agent-workflow and mcp-trino
-# Copy to your repository root and customize as needed
+# GoReleaser Configuration with Enhanced Changelog
+# Copy to repository root as .goreleaser.yml
 
 version: 2
 
@@ -9,21 +8,16 @@ before:
     - go mod tidy
 
 builds:
-  - binary: '{{ .ProjectName }}'  # Customize: your binary name (e.g., pagent, mcp-trino)
-    main: .  # Customize: your main package path (e.g., ./cmd/pagent, ./cmd)
+  - binary: '{{ .ProjectName }}'
+    main: ./cmd
     env:
       - CGO_ENABLED=0
     goos:
       - linux
       - darwin
-      # - windows  # Uncomment if you need Windows support
     goarch:
       - amd64
       - arm64
-      # - arm     # Uncomment if you need ARM v6/v7 support
-    # goarm:      # Uncomment if you enabled arm above
-    #   - "6"
-    #   - "7"
     ldflags:
       - -s -w -X main.Version={{.Version}}
 

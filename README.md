@@ -1,93 +1,79 @@
 # .github
 
-Organization-wide GitHub configuration and templates for Go projects.
+Standardized CI/CD templates for Go projects with enhanced release notes.
 
-## 📁 Contents
+## Templates
 
-### Templates (`templates/`)
+```
+templates/
+├── .goreleaser.yml          # GoReleaser config with conventional commits
+├── release-standalone.yml   # GitHub Actions release workflow
+├── release.yml              # GitHub release form UI
+└── commitlint.config.js     # Commit message linting (optional)
+```
 
-- **`.goreleaser.yml`** - Enhanced GoReleaser configuration with conventional commits support
-- **`release-standalone.yml`** - Standalone release workflow template with Docker support
-- **`release.yml`** - GitHub release form configuration
-- **`commitlint.config.js`** - Commitlint configuration for enforcing conventional commits
+## Usage
 
-### Workflows (`workflows/`)
+### 1. Copy templates to your repo
+```bash
+cp ~/Projects/cli/.github/templates/.goreleaser.yml ./
+cp ~/Projects/cli/.github/templates/release-standalone.yml .github/workflows/release.yml
+cp ~/Projects/cli/.github/templates/release.yml .github/release.yml  # optional
+```
 
-- **`release-go.yml`** - Reusable release workflow (optional, use standalone template instead)
+### 2. Commit and push
+```bash
+git add .goreleaser.yml .github/
+git commit -m "ci: add standardized release pipeline"
+git push
+```
 
-### Documentation (`docs/`)
+### 3. Create a release
+Go to GitHub Actions → Release → Run workflow → Select version bump → Run
 
-- **`RELEASE-PIPELINE.md`** - Complete guide to the standardized release pipeline
-- **`MIGRATION-GUIDE.md`** - Migration guide for existing repositories
+That's it. Templates auto-detect your project name and use sensible defaults.
 
-## 🚀 Quick Start
+## What You Get
 
-### Setting Up Releases for a Go Project
+Enhanced release notes with conventional commits:
 
-1. **Copy GoReleaser config:**
-   ```bash
-   cp ~/.github/templates/.goreleaser.yml ./.goreleaser.yml
-   ```
+```markdown
+## 🚀 Features
+* **api:** add authentication ([abc123](link))
 
-2. **Customize** `.goreleaser.yml`:
-   ```yaml
-   builds:
-     - binary: 'your-app-name'      # Change this
-       main: ./cmd/your-app         # Change this
-   ```
+## 🐛 Bug Fixes
+* **client:** fix timeout handling ([def456](link))
 
-3. **Copy release workflow:**
-   ```bash
-   mkdir -p .github/workflows
-   cp ~/.github/templates/release-standalone.yml .github/workflows/release.yml
-   ```
+## 📚 Documentation
+* update README ([ghi789](link))
+```
 
-4. **Customize** `.github/workflows/release.yml`:
-   ```yaml
-   env:
-     GO_VERSION: "1.25"  # Your Go version
-   ```
+## Customization (Only If Needed)
 
-5. **Optional: Copy release form config:**
-   ```bash
-   cp ~/.github/templates/release.yml .github/release.yml
-   ```
+Most projects work with defaults. Edit only if:
 
-6. **Commit and push:**
-   ```bash
-   git add .goreleaser.yml .github/
-   git commit -m "ci: add enhanced release pipeline"
-   git push
-   ```
+**`.goreleaser.yml`** - If your main path isn't `./cmd`:
+```yaml
+builds:
+  - main: ./cmd/yourapp  # Change if different
+```
 
-## 📦 What You Get
+**`.github/workflows/release.yml`** - If your Go version differs:
+```yaml
+env:
+  GO_VERSION: "1.25"  # Change if needed
+```
 
-✅ **Rich Release Notes** (like [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-go/releases))
-- Automatic categorization by commit type (Features, Bug Fixes, Documentation, etc.)
-- Emoji-enhanced sections for better readability
-- Scope prefixes showing which component changed
-- Commit hash links for traceability
+Remove Docker section (lines 62-116) if you don't need it.
 
-✅ **Simple, Proven Convention**
-- Based on actual pm-agent-workflow and mcp-trino setups
-- Standalone workflows (not reusable dependencies)
-- Docker builds integrated inline
-- Multi-architecture support (Linux, macOS, ARM64)
+## Conventional Commits
 
-✅ **Conventional Commits Support**
-- Structured changelog generation
-- Automatic semantic versioning
-- Filters out noise (chore, test commits)
+Use these commit prefixes:
+- `feat:` → 🚀 Features
+- `fix:` → 🐛 Bug Fixes
+- `docs:` → 📚 Documentation
+- `test:` → ✅ Tests
+- `ci:` → 👷 CI/CD
+- `chore:` → (excluded from changelog)
 
-## 🤝 Contributing
-
-To improve the shared workflows or templates:
-
-1. Create a feature branch
-2. Make your changes
-3. Test with a sample repository
-4. Submit a pull request
-
-## 📝 License
-
-MIT
+Example: `git commit -m "feat(api): add new endpoint"`
