@@ -145,7 +145,11 @@ release:
 
     #### Go Install
     ```bash
-    go install github.com/{{ .Env.GITHUB_REPOSITORY }}/{{ .ProjectName }}@{{ .Tag }}
+    # For repositories with main.go in root:
+    go install github.com/{{ .Env.GITHUB_REPOSITORY }}@{{ .Tag }}
+
+    # For repositories with cmd/<binary>:
+    go install github.com/{{ .Env.GITHUB_REPOSITORY }}/cmd/{{ .ProjectName }}@{{ .Tag }}
     ```
 
     #### Download Binary
