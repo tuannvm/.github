@@ -1,68 +1,42 @@
-# Enhanced GoReleaser Configuration
-# This is a template - copy to your repository root and customize as needed
+# Enhanced GoReleaser Configuration Template
+# Based on actual convention from pm-agent-workflow and mcp-trino
+# Copy to your repository root and customize as needed
 
 version: 2
 
 before:
   hooks:
     - go mod tidy
-    - go mod verify
 
 builds:
-  - binary: '{{ .ProjectName }}'  # Override with your binary name
-    main: .  # Override with your main package path (e.g., ./cmd/myapp)
+  - binary: '{{ .ProjectName }}'  # Customize: your binary name (e.g., pagent, mcp-trino)
+    main: .  # Customize: your main package path (e.g., ./cmd/pagent, ./cmd)
     env:
       - CGO_ENABLED=0
     goos:
       - linux
       - darwin
-      - windows
+      # - windows  # Uncomment if you need Windows support
     goarch:
       - amd64
       - arm64
-      - arm
-    goarm:
-      - "6"
-      - "7"
-    ignore:
-      - goos: windows
-        goarch: arm64
-      - goos: windows
-        goarch: arm
+      # - arm     # Uncomment if you need ARM v6/v7 support
+    # goarm:      # Uncomment if you enabled arm above
+    #   - "6"
+    #   - "7"
     ldflags:
-      - -s -w
-      - -X main.Version={{.Version}}
-      - -X main.Commit={{.Commit}}
-      - -X main.Date={{.Date}}
-      - -X main.BuiltBy=goreleaser
-    flags:
-      - -trimpath
+      - -s -w -X main.Version={{.Version}}
 
 archives:
-  - name_template: >-
-      {{ .ProjectName }}_
-      {{- .Version }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
-    format_overrides:
-      - goos: windows
-        format: zip
-    files:
-      - README.md
-      - LICENSE*
-      - CHANGELOG.md
-
-checksum:
-  name_template: 'checksums.txt'
-  algorithm: sha256
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    formats:
+      - tar.gz
 
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
 
 # Enhanced changelog with conventional commits support
+# This is the key improvement over the basic configuration
 changelog:
   use: github
   sort: asc
@@ -105,6 +79,9 @@ changelog:
     exclude:
       - '^chore:'
       - '^chore\('
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
       - 'merge conflict'
       - Merge pull request
       - Merge remote-tracking branch
@@ -113,73 +90,6 @@ changelog:
 
 # Release configuration
 release:
-  github:
-    owner: '{{ .Env.GITHUB_REPOSITORY_OWNER }}'
-    name: '{{ .ProjectName }}'
-
-  # Create a draft release (set to false for auto-publish)
   draft: false
-
-  # Mark as prerelease for versions with -rc, -beta, -alpha
   prerelease: auto
-
-  # Release name template
   name_template: "{{.ProjectName}} v{{.Version}}"
-
-  # Custom release header (optional)
-  header: |
-    ## Release Notes
-
-    **Full Changelog**: https://github.com/{{ .Env.GITHUB_REPOSITORY }}/compare/{{ .PreviousTag }}...{{ .Tag }}
-
-  # Custom release footer (optional)
-  footer: |
-    ---
-
-    ### Installation
-
-    #### Homebrew (macOS/Linux)
-    ```bash
-    brew install {{ .Env.GITHUB_REPOSITORY_OWNER }}/tap/{{ .ProjectName }}
-    ```
-
-    #### Go Install
-    ```bash
-    # For repositories with main.go in root:
-    go install github.com/{{ .Env.GITHUB_REPOSITORY }}@{{ .Tag }}
-
-    # For repositories with cmd/<binary>:
-    go install github.com/{{ .Env.GITHUB_REPOSITORY }}/cmd/{{ .ProjectName }}@{{ .Tag }}
-    ```
-
-    #### Download Binary
-    Download the appropriate binary for your platform from the assets below.
-
-    ### Docker
-    ```bash
-    docker pull ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:{{ .Tag }}
-    ```
-
-    ---
-
-    **Checksums**
-    - See `checksums.txt` in the assets below to verify download integrity
-
-# Announcement (optional - requires configuration)
-# announce:
-#   slack:
-#     enabled: true
-#     message_template: 'New release: {{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}'
-
-# Homebrew tap (optional)
-# brews:
-#   - repository:
-#       owner: YOUR_ORG
-#       name: homebrew-tap
-#     folder: Formula
-#     homepage: https://github.com/{{ .Env.GITHUB_REPOSITORY }}
-#     description: YOUR_PROJECT_DESCRIPTION
-#     license: MIT
-#     dependencies:
-#       - name: go
-#         type: optional

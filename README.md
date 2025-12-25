@@ -1,80 +1,83 @@
 # .github
 
-Organization-wide GitHub configuration, reusable workflows, and templates.
+Organization-wide GitHub configuration and templates for Go projects.
 
 ## 📁 Contents
-
-### Workflows (`workflows/`)
-
-- **`release-go.yml`** - Reusable release workflow for Go projects with enhanced changelog generation
 
 ### Templates (`templates/`)
 
 - **`.goreleaser.yml`** - Enhanced GoReleaser configuration with conventional commits support
-- **`release-workflow-example.yml`** - Example workflow for repositories to reference the reusable workflow
+- **`release-standalone.yml`** - Standalone release workflow template with Docker support
 - **`release.yml`** - GitHub release form configuration
 - **`commitlint.config.js`** - Commitlint configuration for enforcing conventional commits
+
+### Workflows (`workflows/`)
+
+- **`release-go.yml`** - Reusable release workflow (optional, use standalone template instead)
 
 ### Documentation (`docs/`)
 
 - **`RELEASE-PIPELINE.md`** - Complete guide to the standardized release pipeline
+- **`MIGRATION-GUIDE.md`** - Migration guide for existing repositories
 
 ## 🚀 Quick Start
 
 ### Setting Up Releases for a Go Project
 
-1. Copy the GoReleaser config:
+1. **Copy GoReleaser config:**
    ```bash
    cp ~/.github/templates/.goreleaser.yml ./.goreleaser.yml
    ```
 
-2. Copy the workflow:
-   ```bash
-   mkdir -p .github/workflows
-   cp ~/.github/templates/release-workflow-example.yml .github/workflows/release.yml
+2. **Customize** `.goreleaser.yml`:
+   ```yaml
+   builds:
+     - binary: 'your-app-name'      # Change this
+       main: ./cmd/your-app         # Change this
    ```
 
-3. Customize both files for your project
+3. **Copy release workflow:**
+   ```bash
+   mkdir -p .github/workflows
+   cp ~/.github/templates/release-standalone.yml .github/workflows/release.yml
+   ```
 
-4. See [RELEASE-PIPELINE.md](docs/RELEASE-PIPELINE.md) for detailed instructions
+4. **Customize** `.github/workflows/release.yml`:
+   ```yaml
+   env:
+     GO_VERSION: "1.25"  # Your Go version
+   ```
 
-## 📖 Documentation
+5. **Optional: Copy release form config:**
+   ```bash
+   cp ~/.github/templates/release.yml .github/release.yml
+   ```
 
-- [Release Pipeline Guide](docs/RELEASE-PIPELINE.md) - Comprehensive guide for standardized Go releases
-
-## 🔗 Usage in Repositories
-
-Repositories can reference the reusable workflow:
-
-```yaml
-jobs:
-  release:
-    uses: YOUR_ORG/.github/.github/workflows/release-go.yml@main
-    with:
-      binary_name: 'your-app'
-      main_path: './cmd/your-app'
-      bump_type: ${{ github.event.inputs.bump_type }}
-```
+6. **Commit and push:**
+   ```bash
+   git add .goreleaser.yml .github/
+   git commit -m "ci: add enhanced release pipeline"
+   git push
+   ```
 
 ## 📦 What You Get
 
-✅ **Rich Release Notes** (similar to [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-go/releases))
-- Automatic categorization by commit type
-- Emoji-enhanced sections
-- Scope prefixes
-- Commit hash links
+✅ **Rich Release Notes** (like [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-go/releases))
+- Automatic categorization by commit type (Features, Bug Fixes, Documentation, etc.)
+- Emoji-enhanced sections for better readability
+- Scope prefixes showing which component changed
+- Commit hash links for traceability
 
-✅ **Multi-Architecture Builds**
-- Linux, macOS, Windows
-- ARM and x86 support
+✅ **Simple, Proven Convention**
+- Based on actual pm-agent-workflow and mcp-trino setups
+- Standalone workflows (not reusable dependencies)
+- Docker builds integrated inline
+- Multi-architecture support (Linux, macOS, ARM64)
 
-✅ **Docker Support** (optional)
-- Multi-platform images
-- Automatic GHCR publishing
-
-✅ **Conventional Commits**
-- Structured changelog
-- Semantic versioning
+✅ **Conventional Commits Support**
+- Structured changelog generation
+- Automatic semantic versioning
+- Filters out noise (chore, test commits)
 
 ## 🤝 Contributing
 
