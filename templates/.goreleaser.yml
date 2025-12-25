@@ -75,13 +75,10 @@ changelog:
       order: 999
 
   filters:
-    # Exclude certain commit types from changelog
+    # Exclude commits that are noise (not user-facing changes)
     exclude:
       - '^chore:'
       - '^chore\('
-      - '^docs:'
-      - '^test:'
-      - '^ci:'
       - 'merge conflict'
       - Merge pull request
       - Merge remote-tracking branch
