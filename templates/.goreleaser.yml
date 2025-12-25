@@ -9,7 +9,7 @@ before:
 
 builds:
   - binary: '{{ .ProjectName }}'
-    main: ./cmd
+    main: ./cmd  # Change to . if your main.go is in root
     env:
       - CGO_ENABLED=0
     goos:

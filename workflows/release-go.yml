@@ -7,7 +7,7 @@ on:
         description: 'Go version to use'
         required: false
         type: string
-        default: '1.23'
+        default: '1.25'
       binary_name:
         description: 'Name of the binary to build'
         required: true
@@ -52,13 +52,13 @@ jobs:
       version: ${{ steps.tag.outputs.new_tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ inputs.go_version }}
           cache: true
@@ -90,7 +90,7 @@ jobs:
     if: inputs.enable_docker && needs.create-release.outputs.new_tag != ''
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
